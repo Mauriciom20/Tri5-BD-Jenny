@@ -145,7 +145,8 @@ SELECT id_cargo, nom_cargo FROM cargo ORDER BY nom_cargo;
 SELECT nombre_em, salario_em FROM empleados;
 
 -- 18. Obtener el valor total a pagar que resulta de sumar a los empleados del departamento 3000 una bonificación de $500.000, en orden alfabético del empleado
-SELECT *, count(nombre_em)*500000 as "Total bonificaciones" FROM empleados WHERE cod_depto_em = 3000 ORDER BY nombre_em;
+SELECT nombre_em, salario_em, 500000 AS bonificacion FROM empleados WHERE cod_depto_em = 3000 ORDER BY nombre_em;
+SELECT COUNT(nombre_em)*500000 as "Total bonificaciones" FROM empleados WHERE cod_depto_em = 3000 ORDER BY nombre_em;
 
 -- 19. Obtener la lista de los empleados que ganan sueldo superior a 1.000.000
 SELECT nombre_em, salario_em FROM empleados WHERE salario_em > 1000000;
@@ -154,7 +155,7 @@ SELECT nombre_em, salario_em FROM empleados WHERE salario_em > 1000000;
 SELECT nombre_em, sex_em, salario_em FROM empleados WHERE sex_em = 'F' AND salario_em <= 3500000;
 
 -- 21. Elabore un listado donde para cada fila, figure ‘Nombre’ y ‘Cargo’ antes del valor respectivo para cada empleado
-SELECT nombre_em, cargo_em, salario_em FROM empleados;
+SELECT nombre_em AS 'Nombre', cargo_em AS 'Cargo', salario_em FROM empleados;
 
 -- 22. Hallar el salario de aquellos empleados cuyo número de documento de identidad es superior al '19.709.802'
 SELECT id_em, nombre_em, salario_em FROM empleados WHERE id_em > 19709802;
@@ -163,22 +164,27 @@ SELECT id_em, nombre_em, salario_em FROM empleados WHERE id_em > 19709802;
 SELECT nombre_em, sex_em, salario_em FROM empleados WHERE sex_em = 'M' AND salario_em <= 1500000;
 
 -- 24. Divida los empleados, generando un grupo cuyo nombre inicie por la letra J y termine en la letra Z. Liste estos empleados y su cargo por orden alfabético.
-
+SELECT nombre_em AS'Nombre J-Z', cargo_em FROM empleados WHERE UPPER(nombre_em) LIKE 'J%Z' ORDER BY nombre_em;
+SELECT nombre_em AS'Nombre J', cargo_em FROM empleados WHERE UPPER(nombre_em) LIKE 'J%' ORDER BY nombre_em;
+SELECT nombre_em AS'Nombre Z', cargo_em FROM empleados WHERE UPPER(nombre_em) LIKE '%Z' ORDER BY nombre_em;
 
 -- 25. Listar el salario, documento de identidad del empleado y nombre, de aquellos empleados que tienen sueldo superior a $1.100.000, ordenar el informe por el número del documento de identidad
-
+SELECT id_em, nombre_em, salario_em FROM empleados WHERE salario_em > 1100000 ORDER BY id_em;
 
 -- 26. Obtener un listado similar al anterior, pero de aquellos empleados que ganan hasta 3.300.000
-
+SELECT id_em, nombre_em, salario_em FROM empleados WHERE salario_em <= 3300000 ORDER BY id_em;
 
 -- 27. Hallar el nombre de los empleados que tienen un salario superior a $1.000.000, y tienen como jefe al empleado con documento de identidad '31.840.269'
-
+SELECT nombre_em, salario_em FROM empleados WHERE salario_em > 1000000 AND id_jefe_em = 31840269;
 
 -- 28. Hallar el conjunto complementario del resultado del ejercicio anterior.
+SELECT nombre_em, salario_em FROM empleados WHERE NOT (salario_em > 1000000 AND id_jefe_em = 31840269);
 
+-- 29. Hallar los empleados cuyo nombre no contiene la cadena “MA”.
+SELECT nombre_em FROM empleados WHERE UPPER(nombre_em) NOT LIKE '%MA%';
 
--- 29. Hallar los empleados cuyo nombre no contiene la cadena “MA” 30. Obtener los nombres de los departamentos que no sean “Ventas” ni “Investigación” NI ‘MANTENIMIENTO’, ordenados por ciudad.
-
+-- 30. Obtener los nombres de los departamentos que no sean “Ventas” ni “Investigación” NI ‘MANTENIMIENTO’, ordenados por ciudad.
+SELECT nom_dep, ciudad_dep FROM departamento WHERE UPPER(nom_dep) NOT IN ('VENTAS', 'INVESTIGACIÓN', 'MANTENIMIENTO') ORDER BY ciudad_dep;
 
 -- 31. Obtener el nombre y el departamento de los empleados con cargo 'Secretaria' o 'Vendedor', que no trabajan en el departamento de “PRODUCCION”, cuyo salario es superior a $1.000.000, ordenados por fecha de incorporación.
 
