@@ -187,70 +187,123 @@ SELECT nombre_em FROM empleados WHERE UPPER(nombre_em) NOT LIKE '%MA%';
 SELECT nom_dep, ciudad_dep FROM departamento WHERE UPPER(nom_dep) NOT IN ('VENTAS', 'INVESTIGACIÓN', 'MANTENIMIENTO') ORDER BY ciudad_dep;
 
 -- 31. Obtener el nombre y el departamento de los empleados con cargo 'Secretaria' o 'Vendedor', que no trabajan en el departamento de “PRODUCCION”, cuyo salario es superior a $1.000.000, ordenados por fecha de incorporación.
-
+SELECT e.nombre_em, d.nom_dep, e.salario_em, e.fech_incorporacion_em
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+WHERE e.cargo_em IN (10, 6) AND d.nom_dep <> 'PRODUCCIÓN' AND e.salario_em > 1000000
+ORDER BY e.fech_incorporacion_em;
 
 -- 32. Obtener información de los empleados cuyo nombre tiene exactamente 11 caracteres
-
+SELECT * FROM empleados WHERE CHAR_LENGTH(nombre_em) = 11;
 
 -- 33. Obtener información de los empleados cuyo nombre tiene al menos 11 caracteres
-
+SELECT * FROM empleados WHERE CHAR_LENGTH(nombre_em) >= 11;
 
 -- 34. Listar los datos de los empleados cuyo nombre inicia por la letra 'M', su salario es mayor a $800.000 y trabajan para el departamento de 'VENTAS'
-
+SELECT e.*
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+WHERE e.nombre_em LIKE 'M%' AND e.salario_em > 800000 AND d.nom_dep = 'VENTAS';
 
 -- 35. Obtener los nombres, salarios de los empleados que reciben un salario promedio
-
+SELECT nombre_em, salario_em FROM empleados WHERE salario_em = (SELECT AVG(salario_em) FROM empleados);
 
 -- 36. Suponga que la empresa va a aplicar un reajuste salarial del 7%. Listar los nombres de los empleados, su salario actual y su nuevo salario
-
+SELECT nombre_em, salario_em, salario_em * 1.07 AS nuevo_salario FROM empleados;
 
 -- 37. Obtener la información disponible del empleado cuyo número de documento de identidad sea: '31.178.144', '16.759.060', '1.751.219', '768.782', '737.689', '19.709.802', '31.174.099', '1.130.782'
-
+SELECT * FROM empleados WHERE id_em IN (31178144, 16759060, 1751219, 768782, 737689, 19709802, 31174099, 1130782);
 
 -- 38. Entregar un listado de todos los empleados ordenado por su departamento, y alfabético dentro del departamento.
-
+SELECT e.*, d.nom_dep 
+FROM empleados e 
+JOIN departamento d ON e.cod_depto_em = d.id_dep 
+ORDER BY d.nom_dep, e.nombre_em;
 
 -- 39. Entregar el salario más alto de la empresa.
-
+SELECT MAX(salario_em) AS salario_maximo FROM empleados;
 
 -- 40. Entregar el total a pagar por salario y el número de empleados que las reciben.
-
+SELECT COUNT(*) AS cantidad_empleados, SUM(salario_em) AS total_salarios FROM empleados;
 
 -- 41. Entregar el nombre del último empleado de la lista por orden alfabético.
-
+SELECT nombre_em FROM empleados ORDER BY nombre_em DESC LIMIT 1;
 
 -- 42. Hallar el salario más alto, el más bajo y la diferencia entre ellos.
-
+SELECT MAX(salario_em) AS salario_maximo, MIN(salario_em) AS salario_minimo, MAX(salario_em) - MIN(salario_em) AS diferencia FROM empleados;
 
 -- 43. Conocido el resultado anterior, entregar el nombre de los empleados que reciben el salario más alto y más bajo. ¿Cuanto suman estos salarios?
-
+SELECT nombre_em, salario_em FROM empleados WHERE salario_em = (SELECT MAX(salario_em) FROM empleados) OR salario_em = (SELECT MIN(salario_em) FROM empleados);
+-- Suma:
+SELECT (SELECT MAX(salario_em) FROM empleados) + (SELECT MIN(salario_em) FROM empleados) AS suma_salarios;
 
 -- 44. Entregar el número de empleados de sexo femenino y de sexo masculino, por departamento.
-
+SELECT d.nom_dep, e.sex_em, COUNT(*) AS cantidad
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+GROUP BY d.nom_dep, e.sex_em
+ORDER BY d.nom_dep;
 
 -- 45. Hallar el salario promedio por departamento.
-
+SELECT d.nom_dep, AVG(e.salario_em) AS salario_promedio
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+GROUP BY d.nom_dep;
 
 -- 46. Hallar el salario promedio por departamento, considerando aquellos empleados cuyo salario supera $900.000, y aquellos con salarios inferiores a $575.000. Entregar el código y el nombre del departamento.
-
+SELECT d.id_dep, d.nom_dep, AVG(e.salario_em) AS salario_promedio
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+WHERE e.salario_em > 900000 OR e.salario_em < 575000
+GROUP BY d.id_dep, d.nom_dep;
 
 -- 47. Entregar la lista de los empleados cuyo salario es mayor o igual que el promedio de la empresa. Ordenarlo por departamento.
-
+SELECT e.nombre_em, e.salario_em, d.nom_dep
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+WHERE e.salario_em >= (SELECT AVG(salario_em) FROM empleados)
+ORDER BY d.nom_dep;
 
 -- 48. Hallar los departamentos que tienen más de tres (3) empleados. Entregar el número de empleados de esos departamentos.
-
+SELECT d.nom_dep, COUNT(*) AS cantidad_empleados
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+GROUP BY d.nom_dep
+HAVING COUNT(*) > 3;
 
 -- 49. Obtener la lista de empleados jefes, que tienen al menos un empleado a su cargo. Ordene el informe inversamente por el nombre.
-
+SELECT e.id_em, e.nombre_em, COUNT(s.id_em) AS empleados_a_cargo
+FROM empleados e
+JOIN empleados s ON e.id_em = s.id_jefe_em
+GROUP BY e.id_em, e.nombre_em
+HAVING COUNT(s.id_em) >= 1
+ORDER BY e.nombre_em DESC;
 
 -- 50. Hallar los departamentos que no tienen empleados
-
+SELECT d.id_dep, d.nom_dep
+FROM departamento d
+LEFT JOIN empleados e ON d.id_dep = e.cod_depto_em
+WHERE e.id_em IS NULL;
 
 -- 51. Entregar un reporte con el número de cargos en cada departamento y cuál es el promedio de salario de cada uno. Indique el nombre del departamento en el resultado.
-
+SELECT d.nom_dep, COUNT(DISTINCT e.cargo_em) AS cantidad_cargos, AVG(e.salario_em) AS salario_promedio
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+GROUP BY d.nom_dep;
 
 -- 52. Entregar el nombre del departamento cuya suma de salarios sea la más alta, indicando el valor de la suma.
-
+SELECT d.nom_dep, SUM(e.salario_em) AS suma_salarios
+FROM empleados e
+JOIN departamento d ON e.cod_depto_em = d.id_dep
+GROUP BY d.nom_dep
+ORDER BY suma_salarios DESC
+LIMIT 1;
 
 -- 53. Entregar un reporte con el código y nombre de cada jefe, junto al número de empleados que dirige. Puede haber empleados que no tengan supervisores, para esto se indicará solamente el número de ellos dejando los valores restantes en NULL.
-
+SELECT 
+  j.id_em AS id_jefe,
+  j.nombre_em AS nombre_jefe,
+  COUNT(e.id_em) AS empleados_a_cargo
+FROM empleados j
+LEFT JOIN empleados e ON j.id_em = e.id_jefe_em
+GROUP BY j.id_em, j.nombre_em;
